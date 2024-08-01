@@ -1,28 +1,26 @@
 package com.br.provamonoliticagustavo.controller;
 
 import com.br.provamonoliticagustavo.model.Endereco;
+import com.br.provamonoliticagustavo.service.EnderecoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/enderecos")
 public class EnderecoController {
 
-    // Simulação de armazenamento em memória
-    private final List<Endereco> enderecos = new ArrayList<>();
+    @Autowired
+    private EnderecoService enderecoService;
 
-    // Consulta todos os endereços
     @GetMapping
     public List<Endereco> getAllEnderecos() {
-        return enderecos;
+        return enderecoService.getAllEnderecos();
     }
 
-    // Adiciona um novo endereço
     @PostMapping
     public Endereco addEndereco(@RequestBody Endereco endereco) {
-        enderecos.add(endereco);
-        return endereco;
+        return enderecoService.addEndereco(endereco);
     }
 }
