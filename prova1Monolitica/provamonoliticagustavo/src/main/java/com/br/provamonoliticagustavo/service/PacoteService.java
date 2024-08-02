@@ -1,46 +1,75 @@
-package com.br.provamonoliticagustavo.service;
+    package com.br.provamonoliticagustavo.service;
 
-import com.br.provamonoliticagustavo.model.Pacote;
+    import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import com.br.provamonoliticagustavo.model.Endereco;
+import com.br.provamonoliticagustavo.model.Pacote;
+import com.br.provamonoliticagustavo.model.Rastreamento;
+import com.br.provamonoliticagustavo.repository.EnderecoRepository;
+import com.br.provamonoliticagustavo.repository.PacoteRepository;
+import com.br.provamonoliticagustavo.repository.RastreamentoRepository;
 
-@Service
-public class PacoteService {
+import jakarta.persistence.EntityNotFoundException;
 
-    // Simulação de armazenamento em memória
-    private final List<Pacote> pacotes = new ArrayList<>();
-
-    public List<Pacote> getAllPacotes() {
-        return pacotes;
-    }
-
-    public Pacote addPacote(Pacote pacote) {
-        pacotes.add(pacote);
-        return pacote;
-    }
-
-    public Pacote getPacoteById(String id) {
-        return pacotes.stream()
-                      .filter(pacote -> pacote.getId().equals(id))
-                      .findFirst()
-                      .orElse(null);
-    }
-
-    public Pacote updatePacote(String id, Pacote updatedPacote) {
-        Pacote pacote = getPacoteById(id);
-        if (pacote != null) {
-            pacote.setDestinatario(updatedPacote.getDestinatario());
-            pacote.setEndereco(updatedPacote.getEndereco());
-            pacote.setStatus(updatedPacote.getStatus());
+    @Service
+    public class PacoteService {
+    
+        @Autowired
+        private PacoteRepository pacoteRepository;
+    
+        @Autowired
+        private RastreamentoRepository rastreamentoRepository;
+    
+        @Autowired
+        private EnderecoRepository enderecoRepository;
+    
+        public List<Pacote> getAllPacotes() {
+            return pacoteRepository.findAll();
         }
-        return pacote;
+    
+        public Pacote getPacoteById(Long id) {
+            return pacoteRepository.findById(id).orElse(null);
+        }
+    
+        public Pacote criarPacote(Pacote pacote) {
+            Endereco endereco = pacote.getEndereco();
+            if (endereco != null && endereco.getId() == null) {
+                endereco = enderecoRepository.save(endereco); // Salva o endereço primeiro
+                pacote.setEndereco(endereco); // Atualiza o pacote com o endereço salvo
+            }
+            return pacoteRepository.save(pacote); // Então salva o pacote
+        }
+    
+        public Pacote atualizarPacote(Long id, Pacote pacote) {
+            if (pacoteRepository.existsById(id)) {
+                pacote.setId(id);
+                return pacoteRepository.save(pacote);
+            }
+            return null;
+        }
+    
+        public boolean deletarPacote(Long id) {
+            if (pacoteRepository.existsById(id)) {
+                pacoteRepository.deleteById(id);
+                return true;
+            }
+            return false;
+        }
+    
+        public Rastreamento adicionarRastreamento(Long pacoteId, Rastreamento rastreamento) {
+            Pacote pacote = pacoteRepository.findById(pacoteId)
+                .orElseThrow(() -> new EntityNotFoundException("Pacote não encontrado"));
+    
+            rastreamento.setPacote(pacote);
+            rastreamentoRepository.save(rastreamento);
+    
+            pacote.getRastreamentos().add(rastreamento);
+            pacoteRepository.save(pacote);
+    
+            return rastreamento;
+        }
+        
     }
-
-    public void deletePacote(String id) {
-        pacotes.removeIf(pacote -> pacote.getId().equals(id));
-    }
-}

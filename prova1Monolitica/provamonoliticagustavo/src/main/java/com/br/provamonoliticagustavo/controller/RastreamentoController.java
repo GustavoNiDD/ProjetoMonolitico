@@ -8,19 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rastreamentos")
+@RequestMapping("/api/rastreamentos")
 public class RastreamentoController {
 
     @Autowired
     private RastreamentoService rastreamentoService;
 
-    @PostMapping
-    public Rastreamento addRastreamento(@RequestBody Rastreamento rastreamento) {
-        return rastreamentoService.addRastreamento(rastreamento);
-    }
-
-    @GetMapping("/{id}")
-    public List<Rastreamento> getRastreamentosByPacoteId(@PathVariable String id) {
-        return rastreamentoService.getRastreamentosByPacoteId(id);
+    @GetMapping("/pacote/{pacoteId}")
+    public List<Rastreamento> getRastreamentosByPacoteId(@PathVariable Long pacoteId) {
+        return rastreamentoService.getRastreamentosByPacoteId(pacoteId);
     }
 }

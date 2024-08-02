@@ -4,44 +4,55 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
+import org.hibernate.annotations.processing.Pattern;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
 public class Pacote {
-    private String id;
-    private String destinatario;
-    private Endereco endereco;
-    private String status; // "pendente", "em trânsito", "entregue"
-    private List<Rastreamento> rastreamentoHistorico = new ArrayList<>();
 
-    public Pacote(String id, String destinatario, Endereco endereco, String status) {
-        this.id = id;
-        this.destinatario = destinatario;
-        this.endereco = endereco;
-        this.status = status;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String identificador;
+    private String destinatario;
+
+    @ManyToOne
+    private Endereco endereco;
+
+    private String status;
+
+    @OneToMany(mappedBy = "pacote")
+    private List<Rastreamento> rastreamentos = new ArrayList<>();
 
     public void atualizarStatus(String novoStatus, Date dataHora, String localizacao) {
         this.status = novoStatus;
-        rastreamentoHistorico.add(new Rastreamento(dataHora, novoStatus, localizacao));
+        Rastreamento rastreamento = new Rastreamento();
+        rastreamento.setDataHora(dataHora);
+        rastreamento.setStatus(novoStatus);
+        rastreamento.setLocalizacao(localizacao);
+        rastreamento.setPacote(this);
+        this.rastreamentos.add(rastreamento);
     }
 
     public String consultarInformacoes() {
-        StringBuilder info = new StringBuilder();
-        info.append("ID: ").append(id).append("\n");
-        info.append("Destinatário: ").append(destinatario).append("\n");
-        info.append("Endereço: ").append(endereco.getEnderecoCompleto()).append("\n");
-        info.append("Status: ").append(status).append("\n");
-        info.append("Rastreamento Histórico:\n");
-        for (Rastreamento rastreamento : rastreamentoHistorico) {
-            info.append(rastreamento.getResumo()).append("\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID: ").append(identificador).append("\n");
+        sb.append("Destinatário: ").append(destinatario).append("\n");
+        sb.append("Endereço: ").append(endereco.getEnderecoCompleto()).append("\n");
+        sb.append("Status: ").append(status).append("\n");
+        sb.append("Rastreamento:\n");
+        for (Rastreamento r : rastreamentos) {
+            sb.append(r.getResumo()).append("\n");
         }
-        return info.toString();
+        return sb.toString();
     }
-
-    // Getters e Setters
 }

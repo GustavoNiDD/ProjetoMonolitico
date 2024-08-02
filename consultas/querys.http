@@ -1,0 +1,29 @@
+### Criar um novo Endereço
+POST http://localhost:8080/api/enderecos
+Content-Type: application/json
+
+{
+  "rua": "Rua das Flores",
+  "numero": "123",
+  "cidade": "Cidade Exemplo",
+  "estado": "EX",
+  "cep": "12345-678"
+}
+
+### Criar um novo Pacote
+POST http://localhost:8080/api/pacotes
+Content-Type: application/json
+
+{
+  "identificador": "ABC123",
+  "destinatario": "João Silva",
+  "endereco": {
+    "id": 1
+  },
+  "status": "pendente"
+}
+
+
+### Consultar Rastreamentos por ID do Pacote
+GET http://localhost:8080/api/pacotes/1
+

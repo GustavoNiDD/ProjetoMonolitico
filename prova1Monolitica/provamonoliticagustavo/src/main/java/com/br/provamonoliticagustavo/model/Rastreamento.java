@@ -1,23 +1,31 @@
 package com.br.provamonoliticagustavo.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import lombok.Data;
+
 import java.util.Date;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
 public class Rastreamento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private Date dataHora;
     private String status;
     private String localizacao;
 
+    @ManyToOne
+    private Pacote pacote;
+
     public String getResumo() {
-        return String.format("Data/Hora: %s, Status: %s, Localização: %s",
-                dataHora.toString(), status, localizacao != null ? localizacao : "não disponível");
+        return String.format("Status: %s, Data e Hora: %s, Localização: %s", status, dataHora, localizacao);
     }
 
-    // Getters e Setters
 }
